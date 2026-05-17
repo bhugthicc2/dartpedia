@@ -27,7 +27,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
   String password = "";
 
   // Create a reference to the JSON file
-  File credentialsFile = File('C:/dartpedia/cli/credentials.json');
+  File credentialsFile = File('C:/dartpedia/file_based/cli/credentials.json');
 
   @override
   void initState() {
