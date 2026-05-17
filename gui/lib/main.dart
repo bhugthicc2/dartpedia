@@ -32,7 +32,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: 3, vsync: this);
+    tabController = TabController(length: 4, vsync: this);
     loadData();
   }
 
@@ -60,6 +60,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
               Tab(text: 'Login'),
               Tab(text: 'Register'),
               Tab(text: 'Read'),
+              Tab(text: 'Delete'),
             ],
           ),
         ),
@@ -191,6 +192,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
+            //read
             TabItemWrapper(
               widget: Column(
                 children: [
@@ -203,6 +205,53 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
                         child: ListTile(
                           title: Text(entry.value["username"]),
                           subtitle: Text(entry.value["password"]),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+            //delete
+            TabItemWrapper(
+              widget: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  // Text(const JsonEncoder.withIndent('  ').convert(usersText)),
+                  Column(
+                    children: usersText.entries.map((entry) {
+                      return Card(
+                        shape: Border(bottom: BorderSide(width: 1)),
+                        child: ListTile(
+                          title: Text(entry.value["username"]),
+                          subtitle: Text(entry.value["password"]),
+                          trailing: IconButton(
+                            onPressed: () {
+                              //delete
+                              // Read the JSON file content and decode it into a Dart Map
+                              Map<String, dynamic> data = jsonDecode(
+                                credentialsFile.readAsStringSync(),
+                              );
+
+                              // Access the "users" object from the JSON data
+                              Map<String, dynamic> users = data['users'];
+
+                              // Remove the user entry where the username matches "cowhol"
+                              // This deletes the entire user object (key + value) from the Map
+                              users.removeWhere(
+                                (key, user) => key == entry.key,
+                              );
+                              //..............parameter.....condition
+                              // Convert the updated Map into JSON format
+                              // and write the updated data back into the JSON file
+                              credentialsFile.writeAsStringSync(
+                                JsonEncoder.withIndent('  ').convert(data),
+                              );
+                              loadData();
+                            },
+                            icon: Icon(Icons.delete),
+                          ),
                         ),
                       );
                     }).toList(),
