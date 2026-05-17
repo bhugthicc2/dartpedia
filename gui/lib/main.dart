@@ -1,0 +1,195 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyAppp());
+}
+
+class MyAppp extends StatefulWidget {
+  const MyAppp({super.key});
+
+  @override
+  State<MyAppp> createState() => _MyApppState();
+}
+
+class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
+  late TabController tabController;
+  final TextEditingController userameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  String username = "";
+  String password = "";
+
+  // Create a reference to the JSON file
+  File credentialsFile = File('C:/dartpedia/cli/credentials.json');
+
+  @override
+  void initState() {
+    super.initState();
+    tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    userameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            "CRUD TEST",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          bottom: TabBar(
+            controller: tabController,
+            tabs: [
+              Tab(text: 'Login'),
+              Tab(text: 'Register'),
+            ],
+          ),
+        ),
+
+        body: TabBarView(
+          controller: tabController,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: userameController,
+                    decoration: InputDecoration(label: Text("Username")),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: passwordController,
+                    decoration: InputDecoration(label: Text("Password")),
+                  ),
+                  const SizedBox(height: 40),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: MaterialButton(
+                      onPressed: () {
+                        setState(() {
+                          username = userameController.text;
+                          password = passwordController.text;
+                        });
+
+                        // Read the JSON file content and decode it into a Dart Map
+                        Map<String, dynamic> data = jsonDecode(
+                          credentialsFile.readAsStringSync(),
+                        );
+
+                        // Access the "users" object from the JSON data
+                        Map<String, dynamic> users = data["users"];
+
+                        // Loop through each user object inside the users Map
+                        for (var user in users.values) {
+                          if (user["username"] == username &&
+                              user["password"] == password) {
+                            //TOAST
+                            final snackBar = SnackBar(
+                              content: Text(
+                                "User Found.\nUsername: ${user["username"]}\nPassword: ${user["password"]}",
+                              ),
+                              backgroundColor: Colors.black87,
+                              duration: const Duration(seconds: 4),
+                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(snackBar);
+
+                            return;
+                          }
+                        }
+                      },
+                      color: Colors.black,
+                      textColor: Colors.white,
+                      child: Text('Login'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: userameController,
+                    decoration: InputDecoration(label: Text("Username")),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: passwordController,
+                    decoration: InputDecoration(label: Text("Password")),
+                  ),
+                  const SizedBox(height: 40),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: MaterialButton(
+                      onPressed: () {
+                        setState(() {
+                          username = userameController.text;
+                          password = passwordController.text;
+                        });
+
+                        // Read and decode the JSON file into a Dart Map
+                        Map<String, dynamic> data = jsonDecode(
+                          credentialsFile.readAsStringSync(),
+                        );
+
+                        // Access the "users" object from the JSON data
+                        Map<String, dynamic> users = data['users'];
+
+                        //check if username exists
+                        for (var user in users.values) {
+                          if (user["username"].toString() == username) {
+                            debugPrint("Username already exists.");
+                            return;
+                          }
+                        }
+                        // Generate a unique user ID using the current timestamp
+                        String userId =
+                            "user${DateTime.now().millisecondsSinceEpoch}";
+
+                        // Add a new user object into the users Map
+                        users[userId] = {
+                          "username": username,
+                          "password": password,
+                        };
+
+                        // Convert the updated Map into JSON format
+                        // and save it back into the file
+                        credentialsFile.writeAsStringSync(
+                          JsonEncoder.withIndent('  ').convert(data),
+                        );
+                        debugPrint('Registration successful!!!');
+                      },
+                      color: Colors.black,
+                      textColor: Colors.white,
+                      child: Text('Register'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
