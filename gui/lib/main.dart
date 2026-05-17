@@ -32,7 +32,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: 4, vsync: this);
+    tabController = TabController(length: 5, vsync: this);
     loadData();
   }
 
@@ -59,6 +59,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
             tabs: [
               Tab(text: 'Login'),
               Tab(text: 'Register'),
+              Tab(text: 'Update'),
               Tab(text: 'Read'),
               Tab(text: 'Delete'),
             ],
@@ -70,194 +71,276 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
           children: [
             //login
             TabItemWrapper(
-              widget: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: userameController,
-                    decoration: InputDecoration(label: Text("Username")),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: passwordController,
-                    decoration: InputDecoration(label: Text("Password")),
-                  ),
-                  const SizedBox(height: 40),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: MaterialButton(
-                      onPressed: () {
-                        // Read the JSON file content and decode it into a Dart Map
-                        Map<String, dynamic> data = jsonDecode(
-                          credentialsFile.readAsStringSync(),
-                        );
+              widget: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsetsGeometry.only(right: 10),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: userameController,
+                        decoration: InputDecoration(label: Text("Username")),
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: passwordController,
+                        decoration: InputDecoration(label: Text("Password")),
+                      ),
+                      const SizedBox(height: 40),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: MaterialButton(
+                          onPressed: () {
+                            // Read the JSON file content and decode it into a Dart Map
+                            Map<String, dynamic> data = jsonDecode(
+                              credentialsFile.readAsStringSync(),
+                            );
 
-                        // Access the "users" object from the JSON data
-                        Map<String, dynamic> users = data["users"];
-                        var user = {};
-                        // Loop through each user object inside the users Map
-                        for (user in users.values) {
-                          if (user["username"] == username &&
-                              user["password"] == password) {
-                            setState(() {
-                              username = userameController.text;
-                              password = passwordController.text;
-                              isFound = true;
-                              dataFound =
-                                  'User Found.\nUsername: ${user["username"]}\nPassword: ${user["password"]}';
-                            });
-                            return;
-                          }
-                        }
-                      },
-                      color: Colors.black,
-                      textColor: Colors.white,
-                      child: Text('Login'),
-                    ),
+                            // Access the "users" object from the JSON data
+                            Map<String, dynamic> users = data["users"];
+                            var user = {};
+                            // Loop through each user object inside the users Map
+                            for (user in users.values) {
+                              if (user["username"] == username &&
+                                  user["password"] == password) {
+                                setState(() {
+                                  username = userameController.text;
+                                  password = passwordController.text;
+                                  isFound = true;
+                                  dataFound =
+                                      'User Found.\nUsername: ${user["username"]}\nPassword: ${user["password"]}';
+                                });
+                                return;
+                              }
+                            }
+                          },
+                          color: Colors.black,
+                          textColor: Colors.white,
+                          child: Text('Login'),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      isFound
+                          ? Text(
+                              "User found! $dataFound",
+                              style: TextStyle(color: Colors.green),
+                            )
+                          : SizedBox.shrink(),
+                    ],
                   ),
-                  const SizedBox(height: 40),
-                  isFound
-                      ? Text(
-                          "User found! $dataFound",
-                          style: TextStyle(color: Colors.green),
-                        )
-                      : SizedBox.shrink(),
-                ],
+                ),
               ),
             ),
             //register
             TabItemWrapper(
-              widget: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: userameController,
-                    decoration: InputDecoration(label: Text("Username")),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: passwordController,
-                    decoration: InputDecoration(label: Text("Password")),
-                  ),
-                  const SizedBox(height: 40),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: MaterialButton(
-                      onPressed: () {
-                        setState(() {
-                          username = userameController.text;
-                          password = passwordController.text;
-                        });
+              widget: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsetsGeometry.only(right: 10),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: userameController,
+                        decoration: InputDecoration(label: Text("Username")),
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: passwordController,
+                        decoration: InputDecoration(label: Text("Password")),
+                      ),
+                      const SizedBox(height: 40),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: MaterialButton(
+                          onPressed: () {
+                            setState(() {
+                              username = userameController.text;
+                              password = passwordController.text;
+                            });
 
-                        // Read and decode the JSON file into a Dart Map
-                        Map<String, dynamic> data = jsonDecode(
-                          credentialsFile.readAsStringSync(),
-                        );
+                            // Read and decode the JSON file into a Dart Map
+                            Map<String, dynamic> data = jsonDecode(
+                              credentialsFile.readAsStringSync(),
+                            );
 
-                        // Access the "users" object from the JSON data
-                        Map<String, dynamic> users = data['users'];
+                            // Access the "users" object from the JSON data
+                            Map<String, dynamic> users = data['users'];
 
-                        //check if username exists
-                        for (var user in users.values) {
-                          if (user["username"].toString() == username) {
-                            debugPrint("Username already exists.");
-                            return;
-                          }
-                        }
-                        // Generate a unique user ID using the current timestamp
-                        String userId =
-                            "user${DateTime.now().millisecondsSinceEpoch}";
+                            //check if username exists
+                            for (var user in users.values) {
+                              if (user["username"].toString() == username) {
+                                debugPrint("Username already exists.");
+                                return;
+                              }
+                            }
+                            // Generate a unique user ID using the current timestamp
+                            String userId =
+                                "user${DateTime.now().millisecondsSinceEpoch}";
 
-                        // Add a new user object into the users Map
-                        users[userId] = {
-                          "username": username,
-                          "password": password,
-                        };
+                            // Add a new user object into the users Map
+                            users[userId] = {
+                              "username": username,
+                              "password": password,
+                            };
 
-                        // Convert the updated Map into JSON format
-                        // and save it back into the file
-                        credentialsFile.writeAsStringSync(
-                          JsonEncoder.withIndent('  ').convert(data),
-                        );
-                        debugPrint('Registration successful!!!');
-                        loadData();
-                      },
-                      color: Colors.black,
-                      textColor: Colors.white,
-                      child: Text('Register'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            //read
-            TabItemWrapper(
-              widget: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  // Text(const JsonEncoder.withIndent('  ').convert(usersText)),
-                  Column(
-                    children: usersText.entries.map((entry) {
-                      return Card(
-                        shape: Border(bottom: BorderSide(width: 1)),
-                        child: ListTile(
-                          title: Text(entry.value["username"]),
-                          subtitle: Text(entry.value["password"]),
+                            // Convert the updated Map into JSON format
+                            // and save it back into the file
+                            credentialsFile.writeAsStringSync(
+                              JsonEncoder.withIndent('  ').convert(data),
+                            );
+                            debugPrint('Registration successful!!!');
+                            loadData();
+                          },
+                          color: Colors.black,
+                          textColor: Colors.white,
+                          child: Text('Register'),
                         ),
-                      );
-                    }).toList(),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                ],
+                ),
               ),
             ),
-            //delete
+            //update
             TabItemWrapper(
-              widget: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  // Text(const JsonEncoder.withIndent('  ').convert(usersText)),
-                  Column(
+              widget: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsetsGeometry.only(right: 10),
+                  child: Column(
                     children: usersText.entries.map((entry) {
+                      // Controllers
+                      TextEditingController usernameController =
+                          TextEditingController(text: entry.value["username"]);
+
+                      TextEditingController passwordController =
+                          TextEditingController(text: entry.value["password"]);
+
                       return Card(
-                        shape: Border(bottom: BorderSide(width: 1)),
+                        shape: Border(),
                         child: ListTile(
-                          title: Text(entry.value["username"]),
-                          subtitle: Text(entry.value["password"]),
+                          title: TextField(
+                            controller: usernameController,
+                            decoration: InputDecoration(labelText: "Username"),
+                          ),
+
+                          subtitle: TextField(
+                            controller: passwordController,
+                            decoration: InputDecoration(labelText: "Password"),
+                          ),
+
                           trailing: IconButton(
                             onPressed: () {
-                              //delete
-                              // Read the JSON file content and decode it into a Dart Map
+                              // Read JSON file
                               Map<String, dynamic> data = jsonDecode(
                                 credentialsFile.readAsStringSync(),
                               );
 
-                              // Access the "users" object from the JSON data
+                              // Access users
                               Map<String, dynamic> users = data['users'];
 
-                              // Remove the user entry where the username matches "cowhol"
-                              // This deletes the entire user object (key + value) from the Map
-                              users.removeWhere(
-                                (key, user) => key == entry.key,
-                              );
-                              //..............parameter.....condition
-                              // Convert the updated Map into JSON format
-                              // and write the updated data back into the JSON file
+                              // Update selected user
+                              users[entry.key]["username"] =
+                                  usernameController.text;
+
+                              users[entry.key]["password"] =
+                                  passwordController.text;
+
+                              // Save updated JSON
                               credentialsFile.writeAsStringSync(
                                 JsonEncoder.withIndent('  ').convert(data),
                               );
+
+                              // Refresh UI
                               loadData();
                             },
-                            icon: Icon(Icons.delete),
+
+                            icon: Icon(Icons.save),
                           ),
                         ),
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 20),
-                ],
+                ),
+              ),
+            ),
+            //read
+            TabItemWrapper(
+              widget: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsetsGeometry.only(right: 10),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      // Text(const JsonEncoder.withIndent('  ').convert(usersText)),
+                      Column(
+                        children: usersText.entries.map((entry) {
+                          return Card(
+                            shape: Border(bottom: BorderSide(width: 1)),
+                            child: ListTile(
+                              title: Text(entry.value["username"]),
+                              subtitle: Text(entry.value["password"]),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            //delete
+            TabItemWrapper(
+              widget: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsetsGeometry.only(right: 10),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      // Text(const JsonEncoder.withIndent('  ').convert(usersText)),
+                      Column(
+                        children: usersText.entries.map((entry) {
+                          return Card(
+                            shape: Border(bottom: BorderSide(width: 1)),
+                            child: ListTile(
+                              title: Text(entry.value["username"]),
+                              subtitle: Text(entry.value["password"]),
+                              trailing: IconButton(
+                                onPressed: () {
+                                  //delete
+                                  // Read the JSON file content and decode it into a Dart Map
+                                  Map<String, dynamic> data = jsonDecode(
+                                    credentialsFile.readAsStringSync(),
+                                  );
+
+                                  // Access the "users" object from the JSON data
+                                  Map<String, dynamic> users = data['users'];
+
+                                  // Remove the user entry where the username matches "cowhol"
+                                  // This deletes the entire user object (key + value) from the Map
+                                  users.removeWhere(
+                                    (key, user) => key == entry.key,
+                                  );
+                                  //..............parameter.....condition
+                                  // Convert the updated Map into JSON format
+                                  // and write the updated data back into the JSON file
+                                  credentialsFile.writeAsStringSync(
+                                    JsonEncoder.withIndent('  ').convert(data),
+                                  );
+                                  loadData();
+                                },
+                                icon: Icon(Icons.delete),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
