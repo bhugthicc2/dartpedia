@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:gui/widgets/tab_items.dart';
 
 void main() {
   runApp(const MyAppp());
@@ -22,13 +23,25 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
   String username = "";
   String password = "";
 
+  Map<String, dynamic> usersText = {};
+
   // Create a reference to the JSON file
   File credentialsFile = File('C:/dartpedia/cli/credentials.json');
 
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: 2, vsync: this);
+    tabController = TabController(length: 3, vsync: this);
+
+    // Read the JSON file content and decode it into a Dart Map
+    Map<String, dynamic> data = jsonDecode(credentialsFile.readAsStringSync());
+
+    // Access the "users" object from the JSON data
+    Map<String, dynamic> users = data["users"];
+
+    setState(() {
+      usersText = users;
+    });
   }
 
   @override
@@ -54,6 +67,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
             tabs: [
               Tab(text: 'Login'),
               Tab(text: 'Register'),
+              Tab(text: 'Read'),
             ],
           ),
         ),
@@ -61,9 +75,8 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
         body: TabBarView(
           controller: tabController,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+            TabItems(
+              widget: Column(
                 children: [
                   const SizedBox(height: 20),
                   TextField(
@@ -122,9 +135,8 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+            TabItems(
+              widget: Column(
                 children: [
                   const SizedBox(height: 20),
                   TextField(
@@ -184,6 +196,15 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
                       child: Text('Register'),
                     ),
                   ),
+                ],
+              ),
+            ),
+            TabItems(
+              widget: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Text(const JsonEncoder.withIndent('  ').convert(usersText)),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
