@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-class TabItems extends StatelessWidget {
+class TabItemWrapper extends StatelessWidget {
   final Widget widget;
-  const TabItems({super.key, required this.widget});
+  const TabItemWrapper({super.key, required this.widget});
 
   @override
   Widget build(BuildContext context) {

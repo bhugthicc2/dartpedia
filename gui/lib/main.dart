@@ -16,6 +16,9 @@ class MyAppp extends StatefulWidget {
 }
 
 class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
+  bool isFound = false;
+  String dataFound = '';
+
   late TabController tabController;
   final TextEditingController userameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -65,7 +68,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
           controller: tabController,
           children: [
             //login
-            TabItems(
+            TabItemWrapper(
               widget: Column(
                 children: [
                   const SizedBox(height: 20),
@@ -84,11 +87,6 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
                     height: 50,
                     child: MaterialButton(
                       onPressed: () {
-                        setState(() {
-                          username = userameController.text;
-                          password = passwordController.text;
-                        });
-
                         // Read the JSON file content and decode it into a Dart Map
                         Map<String, dynamic> data = jsonDecode(
                           credentialsFile.readAsStringSync(),
@@ -96,23 +94,18 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
 
                         // Access the "users" object from the JSON data
                         Map<String, dynamic> users = data["users"];
-
+                        var user = {};
                         // Loop through each user object inside the users Map
-                        for (var user in users.values) {
+                        for (user in users.values) {
                           if (user["username"] == username &&
                               user["password"] == password) {
-                            //TOAST
-                            final snackBar = SnackBar(
-                              content: Text(
-                                "User Found.\nUsername: ${user["username"]}\nPassword: ${user["password"]}",
-                              ),
-                              backgroundColor: Colors.black87,
-                              duration: const Duration(seconds: 4),
-                            );
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(snackBar);
-
+                            setState(() {
+                              username = userameController.text;
+                              password = passwordController.text;
+                              isFound = true;
+                              dataFound =
+                                  'User Found.\nUsername: ${user["username"]}\nPassword: ${user["password"]}';
+                            });
                             return;
                           }
                         }
@@ -122,11 +115,18 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
                       child: Text('Login'),
                     ),
                   ),
+                  const SizedBox(height: 40),
+                  isFound
+                      ? Text(
+                          "User found! $dataFound",
+                          style: TextStyle(color: Colors.green),
+                        )
+                      : SizedBox.shrink(),
                 ],
               ),
             ),
             //register
-            TabItems(
+            TabItemWrapper(
               widget: Column(
                 children: [
                   const SizedBox(height: 20),
@@ -191,7 +191,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
-            TabItems(
+            TabItemWrapper(
               widget: Column(
                 children: [
                   const SizedBox(height: 20),
