@@ -23,8 +23,6 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
   String username = "";
   String password = "";
 
-  Map<String, dynamic> usersText = {};
-
   // Create a reference to the JSON file
   File credentialsFile = File('C:/dartpedia/cli/credentials.json');
 
@@ -32,16 +30,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     tabController = TabController(length: 3, vsync: this);
-
-    // Read the JSON file content and decode it into a Dart Map
-    Map<String, dynamic> data = jsonDecode(credentialsFile.readAsStringSync());
-
-    // Access the "users" object from the JSON data
-    Map<String, dynamic> users = data["users"];
-
-    setState(() {
-      usersText = users;
-    });
+    loadData();
   }
 
   @override
@@ -75,6 +64,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
         body: TabBarView(
           controller: tabController,
           children: [
+            //login
             TabItems(
               widget: Column(
                 children: [
@@ -135,6 +125,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
+            //register
             TabItems(
               widget: Column(
                 children: [
@@ -190,6 +181,7 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
                           JsonEncoder.withIndent('  ').convert(data),
                         );
                         debugPrint('Registration successful!!!');
+                        loadData();
                       },
                       color: Colors.black,
                       textColor: Colors.white,
@@ -203,7 +195,18 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
               widget: Column(
                 children: [
                   const SizedBox(height: 20),
-                  Text(const JsonEncoder.withIndent('  ').convert(usersText)),
+                  // Text(const JsonEncoder.withIndent('  ').convert(usersText)),
+                  Column(
+                    children: usersText.entries.map((entry) {
+                      return Card(
+                        shape: Border(bottom: BorderSide(width: 1)),
+                        child: ListTile(
+                          title: Text(entry.value["username"]),
+                          subtitle: Text(entry.value["password"]),
+                        ),
+                      );
+                    }).toList(),
+                  ),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -212,5 +215,19 @@ class _MyApppState extends State<MyAppp> with SingleTickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  Map<String, dynamic> usersText = {};
+
+  void loadData() {
+    Map<String, dynamic> jsonData = jsonDecode(
+      credentialsFile.readAsStringSync(),
+    );
+
+    Map<String, dynamic> users = jsonData["users"];
+
+    setState(() {
+      usersText = users;
+    });
   }
 }
